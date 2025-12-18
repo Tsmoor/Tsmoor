@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mazen Hamdy - Designer & 3D Artist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e0e0e0;
+            --hover-bg: #f5f5f5;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --text-secondary: #999999;
+            --text-tertiary: #666666;
+            --border-color: #222222;
+            --hover-bg: #0a0a0a;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 4rem;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--bg-color);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .logo {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        nav a:hover {
+            color: var(--text-color);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+        }
+
+        section {
+            padding: 8rem 0;
+        }
+
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-content {
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            animation: fadeIn 1s ease;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .hero .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            animation: fadeIn 1s ease 0.2s both;
+            transition: color 0.3s ease;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 4rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .about-content {
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-content p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            line-height: 1.9;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            transition: color 0.3s ease;
+        }
+
+        .about-meta {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border-color);
+            transition: border-color 0.3s ease;
+        }
+
+        .meta-item span {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .meta-item p {
+            font-size: 1rem;
+            color: var(--text-color);
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .skills-list {
+            max-width: 600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .skill-item {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .skill-item h3 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .skill-item p {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4rem;
+            margin-top: 4rem;
+        }
+
+        .portfolio-item {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .portfolio-thumbnail {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: var(--hover-bg);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .portfolio-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .portfolio-thumbnail.placeholder {
+            background: linear-gradient(135deg, var(--hover-bg) 0%, var(--border-color) 100%);
+            font-size: 3rem;
+            color: var(--text-tertiary);
+        }
+
+        .portfolio-item:hover .portfolio-thumbnail {
+            transform: scale(1.03);
+            opacity: 0.8;
+        }
+
+        .portfolio-caption {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .portfolio-caption h3 {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-color);
+            margin-bottom: 0.3rem;
+            transition: color 0.3s ease;
+        }
+
+        .portfolio-caption p {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+        }
+
+        .contact-content {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact-content p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-weight: 300;
+            line-height: 1.8;
+            transition: color 0.3s ease;
+        }
+
+        .contact-email {
+            display: inline-block;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            margin-bottom: 3rem;
+            transition: opacity 0.3s, color 0.3s ease;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        .contact-email:hover {
+            opacity: 0.5;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            transition: border-color 0.3s ease;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            padding: 0.5rem;
+        }
+
+        .social-link:hover {
+            color: var(--text-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            border-top: 1px solid var(--border-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-media-container {
+            width: 100%;
+            max-height: 75vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            touch-action: pan-y;
+        }
+
+        .modal-media {
+            max-width: 100%;
+            max-height: 75vh;
+            object-fit: contain;
+        }
+
+        .modal-media.placeholder {
+            width: 800px;
+            height: 600px;
+            max-width: 90%;
+            background: linear-gradient(135deg, #333 0%, #111 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #666;
+            border-radius: 8px;
+        }
+
+        iframe.modal-media {
+            width: 100%;
+            height: 75vh;
+            max-width: 1200px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -3rem;
+            right: 0;
+            color: #fff;
+            font-size: 2.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 1rem;
+            line-height: 1;
+            transition: opacity 0.3s;
+            min-width: 50px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            opacity: 0.6;
+        }
+
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 1.5rem 2rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            min-width: 60px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-nav.prev {
+            left: 2rem;
+        }
+
+        .modal-nav.next {
+            right: 2rem;
+        }
+
+        .modal-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .modal-caption {
+            text-align: center;
+            margin-top: 2rem;
+            color: #fff;
+            padding: 0 1rem;
+        }
+
+        .modal-caption h3 {
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-caption p {
+            color: #999;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-counter {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 3rem;
+            }
+
+            .portfolio-grid {
+                gap: 3rem;
+            }
+
+            .modal-nav {
+                padding: 1.2rem 1.5rem;
+                font-size: 1.8rem;
+            }
+
+            .modal-nav.prev {
+                left: 1.5rem;
+            }
+
+            .modal-nav.next {
+                right: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            section {
+                padding: 5rem 0;
+            }
+
+            .hero {
+                min-height: 70vh;
+            }
+
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .hero .subtitle {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                margin-bottom: 3rem;
+            }
+
+            .about-content p {
+                font-size: 1.1rem;
+            }
+            
+            nav ul {
+                display: none;
+            }
+
+            .nav-left {
+                gap: 0;
+            }
+
+            .portfolio-grid,
+            .skills-list {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+            
+            .about-meta {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .contact-email {
+                font-size: 1.2rem;
+                word-break: break-word;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+
+            .modal-close {
+                top: -2.5rem;
+                font-size: 2rem;
+            }
+
+            .modal-nav {
+                padding: 1rem 0.8rem;
+                font-size: 1.5rem;
+                min-width: 50px;
+                min-height: 50px;
+                background: rgba(255, 255, 255, 0.15);
+            }
+
+            .modal-nav.prev {
+                left: 0.5rem;
+            }
+
+            .modal-nav.next {
+                right: 0.5rem;
+            }
+
+            .modal-media-container {
+                max-height: 60vh;
+                min-height: 300px;
+            }
+
+            .modal-media {
+                max-height: 60vh;
+            }
+
+            iframe.modal-media {
+                width: 95vw;
+                height: 55vh;
+                min-height: 300px;
+            }
+
+            video.modal-media {
+                width: 95vw;
+                max-height: 55vh;
+            }
+
+            .modal-caption h3 {
+                font-size: 1rem;
+            }
+
+            .modal-caption p {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            nav {
+                padding: 1.5rem 0;
+            }
+
+            .logo {
+                font-size: 0.9rem;
+            }
+
+            .theme-toggle {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero .subtitle {
+                font-size: 0.9rem;
+            }
+
+            .about-content p {
+                font-size: 1rem;
+            }
+
+            .skill-item {
+                padding: 1.5rem;
+            }
+
+            .portfolio-grid {
+                gap: 2rem;
+            }
+
+            .portfolio-caption h3 {
+                font-size: 0.9rem;
+            }
+
+            .portfolio-caption p {
+                font-size: 0.7rem;
+            }
+
+            .contact-email {
+                font-size: 1rem;
+            }
+
+            .social-links {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="nav-left">
+                <div class="logo">MAZEN HAMDY</div>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#skills">Skills</a></li>
+                    <li><a href="#work">Work</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span id="themeIcon">☀</span>
+            </button>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Mazen Hamdy</h1>
+            <p class="subtitle">Designer, 3D Modeling</p>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="container">
+            <h2 class="section-title">About</h2>
+            <div class="about-content">
+                <p>I create compelling 3D visuals and motion graphics that blend technical precision with creative vision. My work focuses on bringing ideas to life through thoughtful design and meticulous attention to detail.</p>
+                <div class="about-meta">
+                    <div class="meta-item">
+                        <span>Experience</span>
+                        <p>1 Year</p>
+                    </div>
+                    <div class="meta-item">
+                        <span>Location</span>
+                        <p>Available Worldwide</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <div class="container">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-list">
+                <div class="skill-item">
+                    <h3>Blender</h3>
+                    <p>3D Modeling & Rendering</p>
+                </div>
+                <div class="skill-item">
+                    <h3>After Effects</h3>
+                    <p>Motion Graphics</p>
+                </div>
+                <div class="skill-item">
+                    <h3>Premiere Pro</h3>
+                    <p>Video Editing</p>
+                </div>
+                <div class="skill-item">
+                    <h3>Illustrator</h3>
+                    <p>Vector Graphics</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="work">
+        <div class="container">
+            <h2 class="section-title">Selected Work</h2>
+            <div class="portfolio-grid" id="portfolioGrid"></div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <h2 class="section-title">Contact</h2>
+            <div class="contact-content">
+                <p>Available for freelance projects and collaborations. Let's create something exceptional together.</p>
+                <a href="mailto:contact@mazenhamdy.com" class="contact-email">contact@mazenhamdy.com</a>
+                <div class="social-links">
+                    <a href="#" class="social-link">LinkedIn</a>
+                    <a href="#" class="social-link">Behance</a>
+                    <a href="#" class="social-link">Instagram</a>
+                    <a href="#" class="social-link">Dribbble</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 Mazen Hamdy. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">×</button>
+            <div class="modal-media-container" id="mediaContainer">
+                <button class="modal-nav prev" id="prevBtn">‹</button>
+                <div id="modalMediaContainer"></div>
+                <button class="modal-nav next" id="nextBtn">›</button>
+            </div>
+            <div class="modal-caption">
+                <h3 id="modalTitle"></h3>
+                <p id="modalSubtitle"></p>
+                <p class="modal-counter" id="modalCounter"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Helper function to convert Google Drive links to direct video links
+        function getGoogleDriveDirectLink(url) {
+            // Extract file ID from various Google Drive URL formats
+            let fileId = null;
+            
+            // Format: https://drive.google.com/file/d/FILE_ID/view
+            if (url.includes('drive.google.com/file/d/')) {
+                fileId = url.split('/d/')[1].split('/')[0];
+            }
+            // Format: https://drive.google.com/open?id=FILE_ID
+            else if (url.includes('drive.google.com/open?id=')) {
+                fileId = url.split('id=')[1].split('&')[0];
+            }
+            
+            // Return direct link if file ID found
+            if (fileId) {
+                return `https://drive.google.com/uc?export=download&id=${fileId}`;
+            }
+            
+            return url; // Return original if not a Google Drive link
+        }
+
+        // Portfolio projects data
+        const projects = [
+            {
+                title: "Product Visualization",
+                subtitle: "3D Modeling, Blender",
+                icon: "🎨",
+                media: [
+                    { type: "image", src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=900&fit=crop" },
+                    { type: "video", src: "https://drive.google.com/file/d/1AcVqMUAoMlLQ08x9f9zt7wbnqcYwqC7B/view?usp=drive_link" },
+                    { type: "video", src: "https://drive.google.com/file/d/1AcVqMUAoMlLQ08x9f9zt7wbnqcYwqC7B/view?usp=drive_link" },
+                    { type: "video", src: "https://drive.google.com/file/d/1AcVqMUAoMlLQ08x9f9zt7wbnqcYwqC7B/view?usp=drive_link" },
+                    { type: "video", src: "https://drive.google.com/file/d/1AcVqMUAoMlLQ08x9f9zt7wbnqcYwqC7B/view?usp=drive_link" },
+
+                    { type: "image", src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=900&fit=crop" }
+                ]
+            },
+            {
+                title: "Motion Graphics Reel",
+                subtitle: "After Effects, Animation",
+                icon: "🎬",
+                media: [
+                    { type: "image", src: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&h=900&fit=crop" },
+                    { type: "image", src: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&h=900&fit=crop" }
+                ]
+            },
+            {
+                title: "Character Design",
+                subtitle: "3D Sculpting, Blender",
+                icon: "👾",
+                media: [
+                    { type: "image", src: "https://images.unsplash.com/photo-1551103782-8ab07afd45c1?w=1200&h=900&fit=crop" },
+                    { type: "image", src: "https://images.unsplash.com/photo-1614854262340-ab1ca7d079c7?w=1200&h=900&fit=crop" },
+                    { type: "image", src: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?w=1200&h=900&fit=crop" }
+                ]
+            },
+            {
+                title: "Brand Animation",
+                subtitle: "Motion Design, Video",
+                icon: "✨",
+                media: [
+                    { type: "image", src: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&h=900&fit=crop" },
+                    { type: "image", src: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&h=900&fit=crop" }
+                ]
+            },
+            {
+                title: "Environment Design",
+                subtitle: "3D Modeling, Lighting",
+                icon: "🏔️",
+                media: [
+                    { type: "image", src: "https://images.unsplash.com/photo-1614935151651-0bea6508db6b?w=1200&h=900&fit=crop" },
+                    { type: "image", src: "https://images.unsplash.com/photo-1633167606207-d840b5070fc2?w=1200&h=900&fit=crop" }
+                ]
+            },
+            {
+                title: "Editorial Video",
+                subtitle: "Premiere Pro, Editing",
+                icon: "🎥",
+                media: [
+                    { type: "image", src: "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=1200&h=900&fit=crop" },
+                    { type: "image", src: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&h=900&fit=crop" },
+                    { type: "image", src: "https://images.unsplash.com/photo-1574717025058-2f8737d2d83e?w=1200&h=900&fit=crop" }
+                ]
+            }
+        ];
+
+        // Render portfolio grid
+        const portfolioGrid = document.getElementById('portfolioGrid');
+        projects.forEach((project, index) => {
+            const item = document.createElement('div');
+            item.className = 'portfolio-item';
+            
+            const thumbnail = document.createElement('div');
+            thumbnail.className = 'portfolio-thumbnail';
+            
+            // Try to load the first media item as thumbnail
+            const firstMedia = project.media[0];
+            if (firstMedia && firstMedia.src) {
+                const img = document.createElement('img');
+                img.src = firstMedia.src;
+                img.alt = project.title;
+                img.onerror = function() {
+                    // If image fails to load, show placeholder
+                    thumbnail.classList.add('placeholder');
+                    thumbnail.textContent = project.icon || '🎨';
+                    thumbnail.removeChild(img);
+                };
+                thumbnail.appendChild(img);
+            } else {
+                // Show placeholder if no source
+                thumbnail.classList.add('placeholder');
+                thumbnail.textContent = project.icon || '🎨';
+            }
+            
+            const caption = document.createElement('div');
+            caption.className = 'portfolio-caption';
+            caption.innerHTML = `
+                <h3>${project.title}</h3>
+                <p>${project.subtitle}</p>
+            `;
+            
+            item.appendChild(thumbnail);
+            item.appendChild(caption);
+            item.addEventListener('click', () => openModal(index));
+            portfolioGrid.appendChild(item);
+        });
+
+        // Modal functionality
+        const modal = document.getElementById('modal');
+        const modalClose = document.getElementById('modalClose');
+        const modalMediaContainer = document.getElementById('modalMediaContainer');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalSubtitle = document.getElementById('modalSubtitle');
+        const modalCounter = document.getElementById('modalCounter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const mediaContainer = document.getElementById('mediaContainer');
+
+        let currentProject = 0;
+        let currentMediaIndex = 0;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function openModal(projectIndex) {
+            currentProject = projectIndex;
+            currentMediaIndex = 0;
+            showMedia();
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const video = modalMediaContainer.querySelector('video');
+            if (video) video.pause();
+            
+            const iframe = modalMediaContainer.querySelector('iframe');
+            if (iframe) {
+                iframe.src = iframe.src; // Stop iframe video
+            }
+            
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function showMedia() {
+            const project = projects[currentProject];
+            const media = project.media[currentMediaIndex];
+            
+            modalMediaContainer.innerHTML = '';
+            
+            if (media.type === 'video' && media.src) {
+                // Check if it's a Google Drive link and handle accordingly
+                if (media.src.includes('drive.google.com')) {
+                    // Extract file ID
+                    let fileId = null;
+                    if (media.src.includes('/file/d/')) {
+                        fileId = media.src.split('/d/')[1].split('/')[0];
+                    } else if (media.src.includes('id=')) {
+                        fileId = media.src.split('id=')[1].split('&')[0];
+                    }
+                    
+                    if (fileId) {
+                        // Use iframe for Google Drive videos
+                        const iframe = document.createElement('iframe');
+                        iframe.className = 'modal-media';
+                        iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+                        iframe.allow = 'autoplay; fullscreen';
+                        iframe.allowFullscreen = true;
+                        iframe.style.border = 'none';
+                        iframe.style.background = '#000';
+                        iframe.style.borderRadius = '8px';
+                        modalMediaContainer.appendChild(iframe);
+                    } else {
+                        // Fallback to placeholder
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'modal-media placeholder';
+                        placeholder.textContent = '🎬';
+                        modalMediaContainer.appendChild(placeholder);
+                    }
+                } else {
+                    // Regular video file
+                    const video = document.createElement('video');
+                    video.className = 'modal-media';
+                    video.controls = true;
+                    video.autoplay = true;
+                    video.src = media.src;
+                    video.style.background = '#000';
+                    video.style.borderRadius = '8px';
+                    video.style.maxWidth = '100%';
+                    video.style.height = 'auto';
+                    video.onerror = function() {
+                        modalMediaContainer.innerHTML = '';
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'modal-media placeholder';
+                        placeholder.textContent = '🎬';
+                        modalMediaContainer.appendChild(placeholder);
+                    };
+                    modalMediaContainer.appendChild(video);
+                }
+            } else if (media.src) {
+                const img = document.createElement('img');
+                img.className = 'modal-media';
+                img.src = media.src;
+                img.alt = project.title;
+                img.style.borderRadius = '8px';
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.onerror = function() {
+                    modalMediaContainer.innerHTML = '';
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'modal-media placeholder';
+                    placeholder.textContent = project.icon || '🖼️';
+                    modalMediaContainer.appendChild(placeholder);
+                };
+                modalMediaContainer.appendChild(img);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'modal-media placeholder';
+                placeholder.textContent = project.icon || '🖼️';
+                modalMediaContainer.appendChild(placeholder);
+            }
+            
+            modalTitle.textContent = project.title;
+            modalSubtitle.textContent = project.subtitle;
+            modalCounter.textContent = `${currentMediaIndex + 1} / ${project.media.length}`;
+            
+            prevBtn.disabled = currentMediaIndex === 0;
+            nextBtn.disabled = currentMediaIndex === project.media.length - 1;
+        }
+
+        function navigateMedia(direction) {
+            const video = modalMediaContainer.querySelector('video');
+            if (video) video.pause();
+            
+            const iframe = modalMediaContainer.querySelector('iframe');
+            if (iframe) {
+                // Stop iframe video by reloading src
+                iframe.src = iframe.src;
+            }
+            
+            currentMediaIndex += direction;
+            showMedia();
+        }
+
+        // Touch/Swipe support for mobile
+        mediaContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        mediaContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && !nextBtn.disabled) {
+                    navigateMedia(1);
+                } else if (diff < 0 && !prevBtn.disabled) {
+                    navigateMedia(-1);
+                }
+            }
+        }
+
+        modalClose.addEventListener('click', closeModal);
+        prevBtn.addEventListener('click', () => navigateMedia(-1));
+        nextBtn.addEventListener('click', () => navigateMedia(1));
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!modal.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft' && !prevBtn.disabled) navigateMedia(-1);
+            if (e.key === 'ArrowRight' && !nextBtn.disabled) navigateMedia(1);
+        });
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', currentTheme);
+        themeIcon.textContent = currentTheme === 'dark' ? '☀' : '☾';
+
+        themeToggle.addEventListener('click', () => {
+            const theme = html.getAttribute('data-theme');
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeIcon.textContent = newTheme === 'dark' ? '☀' : '☾';
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Fade in sections
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('section:not(.hero)').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
