@@ -393,6 +393,22 @@
             max-width: 100%;
             max-height: 75vh;
             object-fit: contain;
+            aspect-ratio: 16/9;
+        }
+
+        /* Respect users who prefer reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* Visible focus outlines for keyboard users */
+        :focus {
+            outline: 3px solid rgba(21, 156, 228, 0.9);
+            outline-offset: 2px;
         }
 
         .modal-media.placeholder {
@@ -696,7 +712,7 @@
     </style>
 </head>
 <body>
-    <nav>
+    <nav role="navigation">
         <div class="container">
             <div class="nav-left">
                 <div class="logo">MAZEN HAMDY</div>
@@ -778,10 +794,10 @@
                 <p>Available for freelance projects and collaborations. Let's create something exceptional together.</p>
                 <a href="mailto:contact@mazenhamdy.com" class="contact-email">contact@mazenhamdy.com</a>
                 <div class="social-links">
-                    <a href="#" class="social-link">LinkedIn</a>
-                    <a href="#" class="social-link">Behance</a>
-                    <a href="#" class="social-link">Instagram</a>
-                    <a href="#" class="social-link">Dribbble</a>
+                        <a href="https://www.youtube.com/shorts/6UGWK6NLFKU" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
+                        <a href="#" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Behance">Behance</a>
+                        <a href="#" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+                        <a href="#" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Dribbble">Dribbble</a>
                 </div>
             </div>
         </div>
@@ -793,13 +809,13 @@
         </div>
     </footer>
 
-    <div class="modal" id="modal">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="modal-content">
-            <button class="modal-close" id="modalClose">×</button>
+            <button class="modal-close" id="modalClose" aria-label="Close modal">×</button>
             <div class="modal-media-container" id="mediaContainer">
-                <button class="modal-nav prev" id="prevBtn">‹</button>
+                <button class="modal-nav prev" id="prevBtn" aria-label="Previous media">‹</button>
                 <div id="modalMediaContainer"></div>
-                <button class="modal-nav next" id="nextBtn">›</button>
+                <button class="modal-nav next" id="nextBtn" aria-label="Next media">›</button>
             </div>
             <div class="modal-caption">
                 <h3 id="modalTitle"></h3>
@@ -810,26 +826,23 @@
     </div>
 
     <script>
-        // Helper function to convert Google Drive links to direct video links
-        function getGoogleDriveDirectLink(url) {
-            // Extract file ID from various Google Drive URL formats
+        // Helper: convert various Google Drive URLs to a preview URL (for iframe)
+        function getGoogleDrivePreviewLink(url) {
             let fileId = null;
-            
-            // Format: https://drive.google.com/file/d/FILE_ID/view
-            if (url.includes('drive.google.com/file/d/')) {
+            if (url.includes('/file/d/')) {
                 fileId = url.split('/d/')[1].split('/')[0];
-            }
-            // Format: https://drive.google.com/open?id=FILE_ID
-            else if (url.includes('drive.google.com/open?id=')) {
+            } else if (url.includes('open?id=')) {
                 fileId = url.split('id=')[1].split('&')[0];
+            } else if (url.includes('drive.google.com')) {
+                // try to extract last path segment as fallback
+                const parts = url.split('/').filter(Boolean);
+                fileId = parts[parts.length - 1];
             }
-            
-            // Return direct link if file ID found
+
             if (fileId) {
-                return `https://drive.google.com/uc?export=download&id=${fileId}`;
+                return `https://drive.google.com/file/d/${fileId}/preview`;
             }
-            
-            return url; // Return original if not a Google Drive link
+            return url;
         }
 
         // Portfolio projects data
@@ -911,12 +924,14 @@
             if (firstMedia && firstMedia.src) {
                 const img = document.createElement('img');
                 img.src = firstMedia.src;
+                img.setAttribute('loading', 'lazy');
+                img.setAttribute('decoding', 'async');
+                img.setAttribute('fetchpriority', 'low');
                 img.alt = project.title;
                 img.onerror = function() {
                     // If image fails to load, show placeholder
                     thumbnail.classList.add('placeholder');
-                    thumbnail.textContent = project.icon || '🎨';
-                    thumbnail.removeChild(img);
+                    thumbnail.innerHTML = project.icon || '🎨';
                 };
                 thumbnail.appendChild(img);
             } else {
@@ -959,21 +974,36 @@
             currentMediaIndex = 0;
             showMedia();
             modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            // save previous focus and move focus to close button for accessibility
+            previousActiveElement = document.activeElement;
+            try { modalClose.focus(); } catch (e) {}
+            try { trapFocus(modal); } catch (e) {}
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             const video = modalMediaContainer.querySelector('video');
-            if (video) video.pause();
-            
+            if (video) {
+                try { video.pause(); } catch (e) {}
+            }
+
             const iframe = modalMediaContainer.querySelector('iframe');
             if (iframe) {
-                iframe.src = iframe.src; // Stop iframe video
+                try { iframe.src = ''; } catch (e) {}
             }
-            
+
             modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
+            try { releaseFocus(modal); } catch (e) {}
+
+            if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+                previousActiveElement.focus();
+            }
         }
+
+        let previousActiveElement = null;
 
         function showMedia() {
             const project = projects[currentProject];
@@ -982,40 +1012,23 @@
             modalMediaContainer.innerHTML = '';
             
             if (media.type === 'video' && media.src) {
-                // Check if it's a Google Drive link and handle accordingly
+                // Use preview helper for Drive links; show iframe for drive preview or video element otherwise
                 if (media.src.includes('drive.google.com')) {
-                    // Extract file ID
-                    let fileId = null;
-                    if (media.src.includes('/file/d/')) {
-                        fileId = media.src.split('/d/')[1].split('/')[0];
-                    } else if (media.src.includes('id=')) {
-                        fileId = media.src.split('id=')[1].split('&')[0];
-                    }
-                    
-                    if (fileId) {
-                        // Use iframe for Google Drive videos
-                        const iframe = document.createElement('iframe');
-                        iframe.className = 'modal-media';
-                        iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-                        iframe.allow = 'autoplay; fullscreen';
-                        iframe.allowFullscreen = true;
-                        iframe.style.border = 'none';
-                        iframe.style.background = '#000';
-                        iframe.style.borderRadius = '8px';
-                        modalMediaContainer.appendChild(iframe);
-                    } else {
-                        // Fallback to placeholder
-                        const placeholder = document.createElement('div');
-                        placeholder.className = 'modal-media placeholder';
-                        placeholder.textContent = '🎬';
-                        modalMediaContainer.appendChild(placeholder);
-                    }
+                    const preview = getGoogleDrivePreviewLink(media.src);
+                    const iframe = document.createElement('iframe');
+                    iframe.className = 'modal-media';
+                    iframe.src = preview;
+                    iframe.allow = 'autoplay; fullscreen';
+                    iframe.allowFullscreen = true;
+                    iframe.style.border = 'none';
+                    iframe.style.background = '#000';
+                    iframe.style.borderRadius = '8px';
+                    modalMediaContainer.appendChild(iframe);
                 } else {
-                    // Regular video file
                     const video = document.createElement('video');
                     video.className = 'modal-media';
                     video.controls = true;
-                    video.autoplay = true;
+                    video.preload = 'metadata';
                     video.src = media.src;
                     video.style.background = '#000';
                     video.style.borderRadius = '8px';
@@ -1034,6 +1047,9 @@
                 const img = document.createElement('img');
                 img.className = 'modal-media';
                 img.src = media.src;
+                img.setAttribute('loading', 'lazy');
+                img.setAttribute('decoding', 'async');
+                img.setAttribute('fetchpriority', 'low');
                 img.alt = project.title;
                 img.style.borderRadius = '8px';
                 img.style.maxWidth = '100%';
@@ -1067,12 +1083,46 @@
             
             const iframe = modalMediaContainer.querySelector('iframe');
             if (iframe) {
-                // Stop iframe video by reloading src
-                iframe.src = iframe.src;
+                // Stop iframe video by clearing src
+                try { iframe.src = ''; } catch (e) {}
             }
             
             currentMediaIndex += direction;
             showMedia();
+        }
+
+        // Simple focus trap inside modal while it's active
+        function trapFocus(el) {
+            const focusableSelectors = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+            const nodes = Array.from(el.querySelectorAll(focusableSelectors));
+            if (!nodes.length) return;
+            const first = nodes[0];
+            const last = nodes[nodes.length - 1];
+
+            function handleTab(e) {
+                if (e.key !== 'Tab') return;
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            }
+
+            el._trapHandler = handleTab;
+            document.addEventListener('keydown', handleTab);
+        }
+
+        function releaseFocus(el) {
+            if (el && el._trapHandler) {
+                document.removeEventListener('keydown', el._trapHandler);
+                el._trapHandler = null;
+            }
         }
 
         // Touch/Swipe support for mobile
