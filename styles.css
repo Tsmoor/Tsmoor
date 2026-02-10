@@ -494,6 +494,45 @@ nav .container {
     animation: fadeInUp 1s ease 0.8s both;
 }
 
+.quick-connect {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 1s ease 0.95s both;
+}
+
+.quick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.quick-link:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.quick-link.discord {
+    background: linear-gradient(135deg, rgba(88, 101, 242, 0.17), rgba(99, 102, 241, 0.08));
+    border-color: rgba(88, 101, 242, 0.45);
+}
+
+.quick-link-icon {
+    font-size: 1rem;
+}
+
 /* ===== Buttons ===== */
 .btn {
     padding: 1rem 2.5rem;
@@ -980,6 +1019,25 @@ nav .container {
     flex-direction: column;
     gap: var(--spacing-md);
     font-style: normal;
+}
+
+.discord-card {
+    background: linear-gradient(135deg, rgba(88, 101, 242, 0.2), rgba(59, 130, 246, 0.08));
+    border: 1px solid rgba(88, 101, 242, 0.55);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem;
+    margin-bottom: 1.4rem;
+}
+
+.discord-card h4 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+
+.discord-card p {
+    margin-bottom: 1rem;
+    font-size: 0.96rem;
+    color: var(--text-secondary);
 }
 
 .contact-item {

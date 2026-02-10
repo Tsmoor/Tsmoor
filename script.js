@@ -328,7 +328,7 @@ class ThemeToggle {
     }
 
     init() {
-        const currentTheme = localStorage.getItem('theme') || 'light';
+        const currentTheme = localStorage.getItem('theme') || 'dark';
         this.setTheme(currentTheme);
         
         this.toggle.addEventListener('click', () => this.toggleTheme());
@@ -376,7 +376,7 @@ class TypingEffect {
         if (!this.typedText) return;
         
         this.texts = [
-            '3D Artist & Designer',
+            '3D Artist & Graphic Designer',
             'Motion Graphics Expert',
             'Visual Storyteller',
             'Creative Professional'
