@@ -518,6 +518,7 @@ nav .container {
     transition: var(--transition);
 }
 
+
 .quick-link:hover {
     border-color: var(--accent-color);
     color: var(--accent-color);
@@ -1028,6 +1029,7 @@ nav .container {
     padding: 1.4rem;
     margin-bottom: 1.4rem;
 }
+
 
 .discord-card h4 {
     font-size: 1.05rem;
