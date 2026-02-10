@@ -1087,6 +1087,18 @@ nav .container {
     font-size: 0.9rem;
 }
 
+.discord-setup-steps {
+    margin: 0 0 0.8rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.discord-setup-steps code {
+    color: var(--text-primary);
+}
+
 .discord-auth-note {
     margin-bottom: 1rem;
     font-size: 0.86rem;

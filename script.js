@@ -916,7 +916,9 @@ class DiscordAuth {
         this.userAvatar = document.getElementById('discordUserAvatar');
         this.userName = document.getElementById('discordUserName');
         this.userMeta = document.getElementById('discordUserMeta');
+        this.redirectText = document.getElementById('discordRedirectText');
         this.tokenStorageKey = 'discord_access_token';
+        this.oauthStateKey = 'discord_oauth_state';
 
         if (!this.heroButton && !this.contactButton) return;
 
@@ -924,6 +926,10 @@ class DiscordAuth {
     }
 
     init() {
+        if (this.redirectText) {
+            this.redirectText.textContent = DISCORD_OAUTH_CONFIG.redirectUri;
+        }
+
         this.heroButton?.addEventListener('click', () => this.authorize());
         this.contactButton?.addEventListener('click', () => this.authorize());
         this.disconnectButton?.addEventListener('click', () => this.disconnect());
@@ -933,12 +939,16 @@ class DiscordAuth {
     }
 
     buildAuthUrl() {
+        const state = this.generateState();
+        sessionStorage.setItem(this.oauthStateKey, state);
+
         const params = new URLSearchParams({
             client_id: DISCORD_OAUTH_CONFIG.clientId,
             response_type: DISCORD_OAUTH_CONFIG.responseType,
             redirect_uri: DISCORD_OAUTH_CONFIG.redirectUri,
             scope: DISCORD_OAUTH_CONFIG.scope.join(' '),
-            prompt: 'consent'
+            prompt: 'consent',
+            state
         });
 
         return `https://discord.com/oauth2/authorize?${params.toString()}`;
@@ -950,16 +960,29 @@ class DiscordAuth {
             return;
         }
 
-        window.open(this.buildAuthUrl(), '_blank', 'noopener,noreferrer');
+        window.location.assign(this.buildAuthUrl());
+    }
+
+    generateState() {
+        return `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
     }
 
     syncTokenFromUrl() {
         const hashParams = new URLSearchParams(window.location.hash.slice(1));
         const token = hashParams.get('access_token');
+        const state = hashParams.get('state');
+        const expectedState = sessionStorage.getItem(this.oauthStateKey);
+
+        if (state && expectedState && state !== expectedState) {
+            this.setDisconnected('Security check failed (invalid OAuth state). Please try connect again.');
+            history.replaceState({}, document.title, window.location.pathname + window.location.search);
+            return;
+        }
 
         if (!token) return;
 
         sessionStorage.setItem(this.tokenStorageKey, token);
+        sessionStorage.removeItem(this.oauthStateKey);
         history.replaceState({}, document.title, window.location.pathname + window.location.search);
     }
 
@@ -1011,6 +1034,7 @@ class DiscordAuth {
 
     setDisconnected(message = 'Not connected yet.') {
         sessionStorage.removeItem(this.tokenStorageKey);
+        sessionStorage.removeItem(this.oauthStateKey);
 
         if (!this.statusElement || !this.noteElement) return;
 

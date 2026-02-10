@@ -280,6 +280,11 @@
                             <li>✅ Optional: Join servers for you (<code>guilds.join</code>)</li>
                             <li>✅ Optional: Read connections (<code>connections</code>)</li>
                         </ul>
+                        <ol class="discord-setup-steps" aria-label="Discord setup steps">
+                            <li>Create app in Discord Developer Portal.</li>
+                            <li>Add this URL to OAuth2 Redirects: <code id="discordRedirectText"></code></li>
+                            <li>Put your Client ID inside <code>DISCORD_OAUTH_CONFIG.clientId</code>.</li>
+                        </ol>
                         <p class="discord-auth-note" id="discordAuthNote">Set your Discord Client ID in <code>script.js</code>, then click connect.</p>
                         <button type="button" class="btn btn-primary" id="discordAuthorizeBtnContact">
                             <span>Connect Discord Now</span>
