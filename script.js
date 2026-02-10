@@ -1007,6 +1007,16 @@ class DiscordAuth {
             return;
         }
 
+        try {
+            const parsed = new URL(redirectUri);
+            if (!['http:', 'https:'].includes(parsed.protocol)) {
+                throw new Error('Invalid protocol');
+            }
+        } catch (error) {
+            alert('Please enter a valid Redirect URI (http/https).');
+            return;
+        }
+
         localStorage.setItem(this.clientIdStorageKey, clientId);
         localStorage.setItem(this.redirectStorageKey, redirectUri);
 
