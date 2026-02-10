@@ -84,6 +84,15 @@ const PROJECTS = [
     }
 ];
 
+// ===== Discord OAuth Settings =====
+const DISCORD_OAUTH_CONFIG = {
+    clientId: 'YOUR_DISCORD_CLIENT_ID',
+    redirectUri: window.location.origin + window.location.pathname,
+    scope: ['identify'],
+    // Use "token" to connect directly from static website (no backend required)
+    responseType: 'token'
+};
+
 // ===== Utility Functions =====
 const Utils = {
     /**
@@ -328,7 +337,7 @@ class ThemeToggle {
     }
 
     init() {
-        const currentTheme = localStorage.getItem('theme') || 'light';
+        const currentTheme = localStorage.getItem('theme') || 'dark';
         this.setTheme(currentTheme);
         
         this.toggle.addEventListener('click', () => this.toggleTheme());
@@ -376,7 +385,7 @@ class TypingEffect {
         if (!this.typedText) return;
         
         this.texts = [
-            '3D Artist & Designer',
+            '3D Artist & Graphic Designer',
             'Motion Graphics Expert',
             'Visual Storyteller',
             'Creative Professional'
@@ -895,6 +904,130 @@ class ContactForm {
     }
 }
 
+// ===== Discord OAuth =====
+class DiscordAuth {
+    constructor() {
+        this.heroButton = document.getElementById('discordAuthorizeBtn');
+        this.contactButton = document.getElementById('discordAuthorizeBtnContact');
+        this.disconnectButton = document.getElementById('discordDisconnectBtn');
+        this.statusElement = document.getElementById('discordAuthStatus');
+        this.noteElement = document.getElementById('discordAuthNote');
+        this.userCard = document.getElementById('discordUser');
+        this.userAvatar = document.getElementById('discordUserAvatar');
+        this.userName = document.getElementById('discordUserName');
+        this.userMeta = document.getElementById('discordUserMeta');
+        this.tokenStorageKey = 'discord_access_token';
+
+        if (!this.heroButton && !this.contactButton) return;
+
+        this.init();
+    }
+
+    init() {
+        this.heroButton?.addEventListener('click', () => this.authorize());
+        this.contactButton?.addEventListener('click', () => this.authorize());
+        this.disconnectButton?.addEventListener('click', () => this.disconnect());
+
+        this.syncTokenFromUrl();
+        this.hydrateFromStorage();
+    }
+
+    buildAuthUrl() {
+        const params = new URLSearchParams({
+            client_id: DISCORD_OAUTH_CONFIG.clientId,
+            response_type: DISCORD_OAUTH_CONFIG.responseType,
+            redirect_uri: DISCORD_OAUTH_CONFIG.redirectUri,
+            scope: DISCORD_OAUTH_CONFIG.scope.join(' '),
+            prompt: 'consent'
+        });
+
+        return `https://discord.com/oauth2/authorize?${params.toString()}`;
+    }
+
+    authorize() {
+        if (DISCORD_OAUTH_CONFIG.clientId === 'YOUR_DISCORD_CLIENT_ID') {
+            alert('Add your Discord Client ID first in script.js > DISCORD_OAUTH_CONFIG');
+            return;
+        }
+
+        window.open(this.buildAuthUrl(), '_blank', 'noopener,noreferrer');
+    }
+
+    syncTokenFromUrl() {
+        const hashParams = new URLSearchParams(window.location.hash.slice(1));
+        const token = hashParams.get('access_token');
+
+        if (!token) return;
+
+        sessionStorage.setItem(this.tokenStorageKey, token);
+        history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+
+    async hydrateFromStorage() {
+        const token = sessionStorage.getItem(this.tokenStorageKey);
+
+        if (!token) return;
+
+        try {
+            const profile = await this.fetchDiscordProfile(token);
+            this.setConnected(profile);
+        } catch (error) {
+            this.setDisconnected('Session expired. Please connect Discord again.');
+        }
+    }
+
+    async fetchDiscordProfile(token) {
+        const response = await fetch('https://discord.com/api/users/@me', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch Discord profile');
+        }
+
+        return response.json();
+    }
+
+    setConnected(profile) {
+        if (!this.statusElement || !this.noteElement) return;
+
+        const avatarUrl = profile.avatar
+            ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=128`
+            : 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+        this.statusElement.textContent = 'Connected';
+        this.statusElement.classList.add('connected');
+        this.noteElement.textContent = 'Discord connected successfully. Visitors can now trust this profile is linked.';
+
+        if (this.userCard && this.userAvatar && this.userName && this.userMeta) {
+            this.userCard.hidden = false;
+            this.userAvatar.src = avatarUrl;
+            this.userName.textContent = `${profile.username}${profile.discriminator && profile.discriminator !== '0' ? `#${profile.discriminator}` : ''}`;
+            this.userMeta.textContent = `User ID: ${profile.id}`;
+        }
+    }
+
+    setDisconnected(message = 'Not connected yet.') {
+        sessionStorage.removeItem(this.tokenStorageKey);
+
+        if (!this.statusElement || !this.noteElement) return;
+
+        this.statusElement.textContent = 'Not Connected';
+        this.statusElement.classList.remove('connected');
+        this.noteElement.textContent = message;
+
+        if (this.userCard) {
+            this.userCard.hidden = true;
+        }
+    }
+
+    disconnect() {
+        this.setDisconnected('Disconnected. You can connect again anytime.');
+    }
+}
+
 // ===== Scroll to Top =====
 class ScrollToTop {
     constructor() {
@@ -1019,6 +1152,7 @@ class App {
             this.components.skills = new SkillsAnimation();
             this.components.portfolio = new Portfolio();
             this.components.contactForm = new ContactForm();
+            this.components.discordAuth = new DiscordAuth();
             this.components.scrollToTop = new ScrollToTop();
             this.components.scrollAnimations = new ScrollAnimations();
             this.components.performanceMonitor = new PerformanceMonitor();
@@ -1086,4 +1220,3 @@ if (typeof window !== 'undefined') {
         components: {}
     };
 }
-
