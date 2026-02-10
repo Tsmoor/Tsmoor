@@ -973,7 +973,7 @@ class DiscordAuth {
         const state = hashParams.get('state');
         const expectedState = sessionStorage.getItem(this.oauthStateKey);
 
-        if (state && expectedState && state !== expectedState) {
+        if ((state && expectedState && state !== expectedState) || (state && !expectedState)) {
             this.setDisconnected('Security check failed (invalid OAuth state). Please try connect again.');
             history.replaceState({}, document.title, window.location.pathname + window.location.search);
             return;
@@ -1128,20 +1128,34 @@ class PerformanceMonitor {
     }
 
     collectMetrics() {
-        if (window.performance) {
-            const perfData = window.performance.timing;
-            const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
-            const connectTime = perfData.responseEnd - perfData.requestStart;
-            const renderTime = perfData.domComplete - perfData.domLoading;
-            
+        if (!window.performance) return;
+
+        const navEntry = performance.getEntriesByType('navigation')[0];
+
+        if (navEntry) {
             this.metrics = {
-                loadTime: pageLoadTime,
-                connectTime: connectTime,
-                renderTime: renderTime
+                loadTime: Math.round(navEntry.loadEventEnd),
+                connectTime: Math.round(navEntry.connectEnd - navEntry.connectStart),
+                renderTime: Math.round(navEntry.domComplete - navEntry.domInteractive)
             };
-            
             console.log('Performance Metrics:', this.metrics);
+            return;
         }
+
+        const timing = performance.timing;
+        const loadTime = timing.loadEventEnd > 0
+            ? timing.loadEventEnd - timing.navigationStart
+            : timing.domComplete - timing.navigationStart;
+        const connectTime = timing.responseEnd - timing.requestStart;
+        const renderTime = timing.domComplete - timing.domInteractive;
+
+        this.metrics = {
+            loadTime: Math.max(0, loadTime),
+            connectTime: Math.max(0, connectTime),
+            renderTime: Math.max(0, renderTime)
+        };
+
+        console.log('Performance Metrics:', this.metrics);
     }
 }
 
