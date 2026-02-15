@@ -84,6 +84,15 @@ const PROJECTS = [
     }
 ];
 
+// ===== Discord OAuth Settings =====
+const DISCORD_OAUTH_DEFAULTS = {
+    clientId: 'YOUR_DISCORD_CLIENT_ID',
+    redirectUri: window.location.origin + window.location.pathname,
+    scope: ['identify'],
+    // Use "token" to connect directly from static website (no backend required)
+    responseType: 'token'
+};
+
 // ===== Utility Functions =====
 const Utils = {
     /**
@@ -328,7 +337,7 @@ class ThemeToggle {
     }
 
     init() {
-        const currentTheme = localStorage.getItem('theme') || 'light';
+        const currentTheme = localStorage.getItem('theme') || 'dark';
         this.setTheme(currentTheme);
         
         this.toggle.addEventListener('click', () => this.toggleTheme());
@@ -376,7 +385,7 @@ class TypingEffect {
         if (!this.typedText) return;
         
         this.texts = [
-            '3D Artist & Designer',
+            '3D Artist & Graphic Designer',
             'Motion Graphics Expert',
             'Visual Storyteller',
             'Creative Professional'
@@ -895,6 +904,218 @@ class ContactForm {
     }
 }
 
+// ===== Discord OAuth =====
+class DiscordAuth {
+    constructor() {
+        this.heroButton = document.getElementById('discordAuthorizeBtn');
+        this.contactButton = document.getElementById('discordAuthorizeBtnContact');
+        this.disconnectButton = document.getElementById('discordDisconnectBtn');
+        this.statusElement = document.getElementById('discordAuthStatus');
+        this.noteElement = document.getElementById('discordAuthNote');
+        this.userCard = document.getElementById('discordUser');
+        this.userAvatar = document.getElementById('discordUserAvatar');
+        this.userName = document.getElementById('discordUserName');
+        this.userMeta = document.getElementById('discordUserMeta');
+        this.redirectText = document.getElementById('discordRedirectText');
+        this.clientIdInput = document.getElementById('discordClientIdInput');
+        this.redirectInput = document.getElementById('discordRedirectInput');
+        this.saveConfigButton = document.getElementById('discordSaveConfigBtn');
+        this.tokenStorageKey = 'discord_access_token';
+        this.oauthStateKey = 'discord_oauth_state';
+        this.clientIdStorageKey = 'discord_client_id';
+        this.redirectStorageKey = 'discord_redirect_uri';
+
+        if (!this.heroButton && !this.contactButton) return;
+
+        this.init();
+    }
+
+    init() {
+        const config = this.getConfig();
+
+        if (this.redirectText) {
+            this.redirectText.textContent = config.redirectUri;
+        }
+
+        if (this.clientIdInput) {
+            this.clientIdInput.value = config.clientId === 'YOUR_DISCORD_CLIENT_ID' ? '' : config.clientId;
+        }
+
+        if (this.redirectInput) {
+            this.redirectInput.value = config.redirectUri;
+        }
+
+        this.heroButton?.addEventListener('click', () => this.authorize());
+        this.contactButton?.addEventListener('click', () => this.authorize());
+        this.disconnectButton?.addEventListener('click', () => this.disconnect());
+        this.saveConfigButton?.addEventListener('click', () => this.saveLocalConfig());
+
+        this.syncTokenFromUrl();
+        this.hydrateFromStorage();
+    }
+
+    buildAuthUrl() {
+        const config = this.getConfig();
+        const state = this.generateState();
+        sessionStorage.setItem(this.oauthStateKey, state);
+
+        const params = new URLSearchParams({
+            client_id: config.clientId,
+            response_type: config.responseType,
+            redirect_uri: config.redirectUri,
+            scope: config.scope.join(' '),
+            prompt: 'consent',
+            state
+        });
+
+        return `https://discord.com/oauth2/authorize?${params.toString()}`;
+    }
+
+    authorize() {
+        const config = this.getConfig();
+
+        if (config.clientId === 'YOUR_DISCORD_CLIENT_ID') {
+            alert('Add your Discord Client ID in the form first, then save local config.');
+            return;
+        }
+
+        window.location.assign(this.buildAuthUrl());
+    }
+
+    getConfig() {
+        const storedClientId = localStorage.getItem(this.clientIdStorageKey);
+        const storedRedirect = localStorage.getItem(this.redirectStorageKey);
+
+        return {
+            ...DISCORD_OAUTH_DEFAULTS,
+            clientId: storedClientId || DISCORD_OAUTH_DEFAULTS.clientId,
+            redirectUri: storedRedirect || DISCORD_OAUTH_DEFAULTS.redirectUri
+        };
+    }
+
+    saveLocalConfig() {
+        const clientId = this.clientIdInput?.value.trim();
+        const redirectUri = this.redirectInput?.value.trim();
+
+        if (!clientId) {
+            alert('Please enter Discord Client ID first.');
+            return;
+        }
+
+        if (!redirectUri) {
+            alert('Please enter Redirect URI first.');
+            return;
+        }
+
+        try {
+            const parsed = new URL(redirectUri);
+            if (!['http:', 'https:'].includes(parsed.protocol)) {
+                throw new Error('Invalid protocol');
+            }
+        } catch (error) {
+            alert('Please enter a valid Redirect URI (http/https).');
+            return;
+        }
+
+        localStorage.setItem(this.clientIdStorageKey, clientId);
+        localStorage.setItem(this.redirectStorageKey, redirectUri);
+
+        if (this.redirectText) {
+            this.redirectText.textContent = redirectUri;
+        }
+
+        this.noteElement.textContent = 'Local config saved in this browser. You can connect Discord now without editing code.';
+    }
+
+    generateState() {
+        return `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+    }
+
+    syncTokenFromUrl() {
+        const hashParams = new URLSearchParams(window.location.hash.slice(1));
+        const token = hashParams.get('access_token');
+        const state = hashParams.get('state');
+        const expectedState = sessionStorage.getItem(this.oauthStateKey);
+
+        if ((state && expectedState && state !== expectedState) || (state && !expectedState)) {
+            this.setDisconnected('Security check failed (invalid OAuth state). Please try connect again.');
+            history.replaceState({}, document.title, window.location.pathname + window.location.search);
+            return;
+        }
+
+        if (!token) return;
+
+        sessionStorage.setItem(this.tokenStorageKey, token);
+        sessionStorage.removeItem(this.oauthStateKey);
+        history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+
+    async hydrateFromStorage() {
+        const token = sessionStorage.getItem(this.tokenStorageKey);
+
+        if (!token) return;
+
+        try {
+            const profile = await this.fetchDiscordProfile(token);
+            this.setConnected(profile);
+        } catch (error) {
+            this.setDisconnected('Session expired. Please connect Discord again.');
+        }
+    }
+
+    async fetchDiscordProfile(token) {
+        const response = await fetch('https://discord.com/api/users/@me', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch Discord profile');
+        }
+
+        return response.json();
+    }
+
+    setConnected(profile) {
+        if (!this.statusElement || !this.noteElement) return;
+
+        const avatarUrl = profile.avatar
+            ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=128`
+            : 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+        this.statusElement.textContent = 'Connected';
+        this.statusElement.classList.add('connected');
+        this.noteElement.textContent = 'Discord connected successfully. Visitors can now trust this profile is linked.';
+
+        if (this.userCard && this.userAvatar && this.userName && this.userMeta) {
+            this.userCard.hidden = false;
+            this.userAvatar.src = avatarUrl;
+            this.userName.textContent = `${profile.username}${profile.discriminator && profile.discriminator !== '0' ? `#${profile.discriminator}` : ''}`;
+            this.userMeta.textContent = `User ID: ${profile.id}`;
+        }
+    }
+
+    setDisconnected(message = 'Not connected yet.') {
+        sessionStorage.removeItem(this.tokenStorageKey);
+        sessionStorage.removeItem(this.oauthStateKey);
+
+        if (!this.statusElement || !this.noteElement) return;
+
+        this.statusElement.textContent = 'Not Connected';
+        this.statusElement.classList.remove('connected');
+        this.noteElement.textContent = message;
+
+        if (this.userCard) {
+            this.userCard.hidden = true;
+        }
+    }
+
+    disconnect() {
+        this.setDisconnected('Disconnected. You can connect again anytime.');
+    }
+}
+
 // ===== Scroll to Top =====
 class ScrollToTop {
     constructor() {
@@ -971,20 +1192,34 @@ class PerformanceMonitor {
     }
 
     collectMetrics() {
-        if (window.performance) {
-            const perfData = window.performance.timing;
-            const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
-            const connectTime = perfData.responseEnd - perfData.requestStart;
-            const renderTime = perfData.domComplete - perfData.domLoading;
-            
+        if (!window.performance) return;
+
+        const navEntry = performance.getEntriesByType('navigation')[0];
+
+        if (navEntry) {
             this.metrics = {
-                loadTime: pageLoadTime,
-                connectTime: connectTime,
-                renderTime: renderTime
+                loadTime: Math.round(navEntry.loadEventEnd),
+                connectTime: Math.round(navEntry.connectEnd - navEntry.connectStart),
+                renderTime: Math.round(navEntry.domComplete - navEntry.domInteractive)
             };
-            
             console.log('Performance Metrics:', this.metrics);
+            return;
         }
+
+        const timing = performance.timing;
+        const loadTime = timing.loadEventEnd > 0
+            ? timing.loadEventEnd - timing.navigationStart
+            : timing.domComplete - timing.navigationStart;
+        const connectTime = timing.responseEnd - timing.requestStart;
+        const renderTime = timing.domComplete - timing.domInteractive;
+
+        this.metrics = {
+            loadTime: Math.max(0, loadTime),
+            connectTime: Math.max(0, connectTime),
+            renderTime: Math.max(0, renderTime)
+        };
+
+        console.log('Performance Metrics:', this.metrics);
     }
 }
 
@@ -1019,6 +1254,7 @@ class App {
             this.components.skills = new SkillsAnimation();
             this.components.portfolio = new Portfolio();
             this.components.contactForm = new ContactForm();
+            this.components.discordAuth = new DiscordAuth();
             this.components.scrollToTop = new ScrollToTop();
             this.components.scrollAnimations = new ScrollAnimations();
             this.components.performanceMonitor = new PerformanceMonitor();
@@ -1086,4 +1322,3 @@ if (typeof window !== 'undefined') {
         components: {}
     };
 }
-
